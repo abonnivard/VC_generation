@@ -1,0 +1,26 @@
+{
+  "name": "api_sign_bss",
+  "version": "1.0.0",
+  "main": "index.mjs",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node index.mjs"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "@digitalbazaar/bbs-2023-cryptosuite": "^1.1.1",
+    "@digitalbazaar/bls12-381-multikey": "^1.1.1",
+    "@digitalbazaar/data-integrity": "^2.1.0",
+    "@digitalbazaar/vc": "^6.2.0",
+    "cors": "^2.8.5",
+    "did-jwt": "^8.0.0",
+    "ethr-did-resolver": "^10.1.5",
+    "express": "^4.18.2",
+    "jsonwebtoken": "^9.0.2",
+    "node-fetch": "^3.3.2",
+    "web3": "^4.5.0"
+  }
+}
