@@ -1,0 +1,35 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VC Dashboard</title>
+    <link rel="stylesheet" href="{% static 'VC_interface/css/dashboard.css' %}">
+</head>
+<body>
+    <div class="container">
+        <h1>VC Wallet Dashboard</h1>
+        <div class="vc-list">
+            <h2>Your Verifiable Credentials</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>VC Name</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for degree in degrees %}
+                    <tr>
+                        <td>{{ degree }}</td>
+                        <td>{{ degree.status }}</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <a href="{% url 'signing:university_degree' %}" class="create-vc-btn">Request New VC</a>
+    </div>
+</body>
+</html>

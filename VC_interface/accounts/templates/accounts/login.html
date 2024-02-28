@@ -1,0 +1,46 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Verifiable Credential Interface</title>
+    <link rel="stylesheet" href="{% static 'accounts/css/login.css' %}">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+
+<div class="title">
+            <div class="title-texte">
+                <h1>Verifiable Credentials Generation Interface</h1>
+                <p>Interface to create and verify Verifiable Credentials</p>
+            </div>
+
+
+        <form method="post">
+            <h1>Login</h1>
+  {% csrf_token %}
+  <div class="form-group">
+    <label for="username">Username</label>
+    <input type="text" class="form-control" id="username" name="username" required>
+  </div>
+  <div class="form-group">
+    <label for="password">Password</label>
+    <input type="password" class="form-control" id="password" name="password" required>
+  </div>
+  <button type="submit" class="btn btn-primary">Login</button>
+           <p> <a href="../register">Créer un compte</a></p>
+            <div class="texte">
+                <div class="container">
+                <a href="../register-issuer">Issuer</a>
+                    </div>
+               <div class="container">
+                <a href="../register-holder">Holder</a>
+                    </div>
+            </div>
+</form>
+
+
+</div>
+
+</body>
+</html>

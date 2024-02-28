@@ -1,0 +1,59 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>VC Signing Dashboard</title>
+    <link rel="stylesheet" href="{% static 'VC_interface/css/dashboard_signing.css' %}">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+    <div class="container">
+        <h1>VC Signing Dashboard</h1>
+
+        <div class="vc-section">
+            <h2>VC Signing Requests</h2>
+            <ul>
+                {% for notsign in notsigning %}
+                <li>{{ notsign }} <button class="sign-btn"><a href="/signing_page/id={{ notsign.uuid }}/">Sign</a></button></li>
+                {% endfor %}
+            </ul>
+        </div>
+
+        <div class="signed-vc-section">
+            <h2>Signed VCs</h2>
+            <ul>
+                {% for sign in signing %}
+                <li>{{ sign }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+
+        <div class="private-key-section">
+            <h2>Private Keys</h2>
+            <ul>
+                {% for private_key in private_keys %}
+                <li>
+                    <div class="key-section">
+                        <p>Key name: {{ private_key.name }}</p>
+                        <button class="download-key-btn" data-private="{{ private_key.private_key }}" data-public="{{ private_key.public_key }}" data-key-name="{{ private_key.name }}">Download Key</button>
+                    </div>
+                </li>
+                {% endfor %}
+            </ul>
+
+
+            <form method="post" action="{% url 'key_storage:generate_key' %}">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label for="name">Name of the new pair key</label>
+                    <input type="text" class="form-control" id="name" name="name" required>
+                    <button type="submit" class="generate-key-btn">Generate New Key</button>
+                </div>
+
+            </form>
+        </div>
+    </div>
+</body>
+<script src="{% static 'VC_interface/js/dashboard_signing.js' %}"></script>
+</html>

@@ -1,0 +1,157 @@
+* {
+  margin: 0;
+  padding: 0;
+  outline: 0;
+  border: 0;
+  border-spacing: 0;
+  box-sizing: border-box;
+}
+
+@font-face {
+    font-family: 'Anton';
+    src: url('../../../../VC_interface/static/VC_interface/fonts/Anton-Regular.ttf');
+
+}
+
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+    font-family: 'Anton', sans-serif;
+    background-color: #f0f0f0;
+}
+
+
+
+.title {
+    min-height: 100vh;
+
+    position: relative;
+    overflow: hidden;
+}
+
+.title-texte {
+    color: white;
+    width: 70%;
+    margin: 0 auto;
+}
+
+.title-texte h1 {
+    font-size: 3rem;
+    text-align: center;
+}
+
+
+.title-texte p {
+    text-align: center;
+}
+
+
+
+
+
+form {
+    width: 600px;
+    color: black;
+    z-index: 10;
+    padding: 30px;
+    display: flex;
+    flex-direction: column;
+    border-radius: 8px;
+    position: relative;
+    height: auto;
+    margin: 0 auto;
+    background-color: white;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    margin-bottom: 80px;
+}
+
+form a {
+    display: flex;
+    flex-direction: column;
+    text-align: center;
+    color: rgba(19, 19, 19, 0.09);
+    text-decoration: white;
+}
+
+.form #submit {
+    display: flex;
+    flex-direction: column;
+    margin: 0 auto;
+    transform: translateY(20px);
+    background-color: white;
+    color: black;
+}
+.form-group {
+    display: flex;
+    flex-direction: column;
+    margin: 0 auto;
+    margin-bottom: 20px;
+    width: 400px;
+}
+
+input {
+    border-radius: 30px;
+    border: 1px #1b4c80 solid;
+    padding: 10px;
+    margin: 0 auto;
+    width: 400px;
+    background-color: rgba(19, 19, 19, 0.09);
+    color: black;
+    font-size: 1.5rem;
+    margin-bottom: 20px;
+}
+
+form h1 {
+    text-align: center;
+    margin-top: 10px;
+    color: white;
+}
+
+form h1 {
+    font-size: 3rem;
+    text-align: center;
+    margin-bottom: 20px;
+    color: black;
+}
+
+label {
+    font-size: 1.5rem;
+    margin-bottom: 20px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    margin: 0 auto;
+    margin-bottom: 20px;
+    width: 400px;
+}
+
+.form-group label {
+    text-align: center;
+    margin-bottom: 5px;
+    margin-top: 20px;
+}
+
+.form form {
+    margin-top: 5%;
+    margin-bottom: 5%;
+}
+
+button {
+    margin: 0 auto;
+    background-color: #1b4c80;
+    color: black;
+    border-radius: 30px;
+    width: 200px;
+    height: 30px;
+    text-align: center;
+}
+
+button:hover {
+    background-color: #19416e;
+    color: black;
+}

@@ -1,0 +1,38 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Register</title>
+    <link rel="stylesheet" href="{% static 'accounts/css/register.css' %}">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+
+<div class="title">
+    <div class="title-texte">
+
+
+        <div class="form">
+            <form method="POST">
+                            <h1>Register</h1>
+
+                {% csrf_token %}
+                {{ form.as_p }}
+                {% if issuer %}
+                    <div class="form-group">
+                <label for="institution">Nom de votre institution</label>
+
+                     <input type="text" class="form-control" id="institution" name="institution" required>
+                </div>
+                {% endif %}
+
+                  <button type="submit" class="btn btn-primary">Login</button>
+            </form>
+        </div>
+
+            </div>
+        </div>
+
+</body>
+</html>

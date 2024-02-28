@@ -1,0 +1,48 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VC Signing Page</title>
+    <link rel="stylesheet" href="{% static 'VC_interface/css/signing_page.css' %}">
+</head>
+<body>
+    <div class="container">
+        <h1>VC Signing Page</h1>
+    <form method="post" action="/signing_page/id={{ vc.uuid }}/">
+        {% csrf_token %}
+    <div class="form-group">
+        <label for="private-key-select">Please select a private key from your key storage:</label>
+        <select id="private-key-select" name="private-key-select" required>
+            {% for privatekey in issuer_private_key %}
+            <option value="{{ privatekey.uuid }}">{{ privatekey.name }}</option>
+            {% endfor %}
+        </select>
+    </div>
+        <div class="form-group">
+
+        <label for="signature-select">Please select a method for sign the vc :</label>
+        <select id="signature-select" name="signature-select" required>
+            <option value="jwt">JSON JWT</option>
+            <option value="bss">JSON-LD ZKP + BSS+</option>
+        </select>
+        </div>
+        <button id="sign-vc-btn">Sign VC</button>
+    </form>
+
+        <div class="vc-info">
+            <h2>VC Information</h2>
+            <ul>
+                <li><strong>Username:</strong> {{ vc.username }}</li>
+                <li><strong>Institution:</strong> {{ vc.institution }}</li>
+                <li><strong>Year of Graduation:</strong> {{ vc.year_of_graduation }}</li>
+                <li><strong>First Name:</strong> {{ vc.first_name }}</li>
+                <li><strong>Name:</strong> {{ vc.name }}</li>
+                <li><strong>ID Card Photo:</strong> <img src="{{ vc.id_card_photo.url }}" alt="ID Card Photo"></li>
+                <li><strong>Status:</strong> {{ vc.status }}</li>
+            </ul>
+        </div>
+    </div>
+</body>
+</html>

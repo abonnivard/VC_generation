@@ -1,0 +1,46 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>University degree</title>
+        <link rel="stylesheet" href="{% static 'signing/css/university_degree.css' %}">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+
+
+
+<h2>Create a Verifiable Credential</h2>
+<form method="post">
+  {% csrf_token %}
+  <div class="form-group">
+    <label for="name">Name</label>
+    <input type="text" class="form-control" id="name" name="name" required>
+  </div>
+  <div class="form-group">
+    <label for="firstname">First Name</label>
+    <input type="text" class="form-0control" id="firstname" name="firstname" required>
+  </div>
+  <div class="form-group">
+    <label for="school">Institution</label>
+    <select class="form-control" id="school" name="institution" required>
+        <option value="" selected disabled>Choose an institution</option>
+        {% for institution in institutions %}
+            <option value="{{ institution }}">{{ institution }}</option>
+        {% endfor %}
+    </select>
+</div>
+  <div class="form-group">
+    <label for="degree">Degree</label>
+    <input type="text" class="form-control" id="degree" name="degree" required>
+  </div>
+  <div class="form-group">
+    <label for="year">Year of Graduating</label>
+    <input type="number" class="form-control" id="year" name="year" required>
+  </div>
+  <button type="submit" class="btn btn-primary">Create Credential</button>
+</form>
+
+</body>
+</html>
