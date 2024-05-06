@@ -2,7 +2,11 @@ import express from 'express';
 import cors from 'cors';
 import bss from './bss_signature/sign.mjs';
 import jwt from './jwt-signature/sign.mjs';
-
+import resolver from "./resolver.mjs";
+import bss_verify from './bss_signature/verify.mjs';
+import jwt_verify from './jwt-signature/verify.mjs';
+import generate_keypair from './key_generation/generate.mjs';
+import ld from './LD_signature/sign.mjs'
 const app = express();
 const PORT = 3000;
 
@@ -12,7 +16,11 @@ app.use(cors({
 }));
 app.use('/bss', bss);
 app.use('/jwt', jwt);
-
+app.use('/resolver', resolver);
+app.use('/bss_verify', bss_verify);
+app.use('/jwt_verify', jwt_verify);
+app.use('/generate_keypair', generate_keypair);
+app.use('/ld', ld);
 app.get('/', (req, res) => {
   res.send('Node.js API for VC signature');
 });
