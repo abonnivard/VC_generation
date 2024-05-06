@@ -9,10 +9,10 @@ install:
 
 # Démarrer le site
 start:
-	. env/bin/activate && python manage.py runserver
+	. env/bin/activate && python3 manage.py runserver
 
 clean:
 	rm -R env/
 
 migrations:
-	. env/bin/activate && python manage.py makemigrations && python manage.py migrate
+	. env/bin/activate && python3 manage.py makemigrations && python3 manage.py migrate

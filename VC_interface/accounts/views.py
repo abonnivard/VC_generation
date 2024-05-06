@@ -4,7 +4,10 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from .forms import UserForm
 from .models import Issuer, Holder
-from web3 import Web3
+import uuid
+
+def generate_session_number():
+    return str(uuid.uuid4())
 
 
 def register_holder(request):
@@ -17,11 +20,10 @@ def register_holder(request):
             user = authenticate(request, password=password, username=username)
             if user is not None:
                 login(request, user)
-                web3 = Web3(Web3.HTTPProvider('https://mainnet.infura.io/v3/3764b03d20384386b97c9d7b37937766'))
-                new_account = web3.eth.account.create()
-                did = f"did:ethr:{new_account.address}"
-                new = Holder(username=request.user.username, did=did)
+                new = Holder(username=request.user.username)
                 new.save()
+                # Générer et stocker le numéro de session
+                request.session['session_number'] = generate_session_number()
             if request.user.is_authenticated:
                 return redirect('../dashboard/')
     else:
@@ -44,11 +46,10 @@ def register_issuer(request):
 
             if user is not None:
                 login(request, user)
-                web3 = Web3(Web3.HTTPProvider('https://mainnet.infura.io/v3/3764b03d20384386b97c9d7b37937766'))
-                new_account = web3.eth.account.create()
-                did = f"did:ethr:{new_account.address}"
-                new = Issuer(username=request.user.username, institution=request.POST['institution'], did=did)
+                new = Issuer(username=request.user.username, institution=request.POST['institution'])
                 new.save()
+                # Générer et stocker le numéro de session
+                request.session['session_number'] = generate_session_number()
             if request.user.is_authenticated:
                 return redirect("/dashboard-signing")
     else:
@@ -69,7 +70,10 @@ def login_function(request):
         if user is not None:
 
             # Login the user
+
             login(request, user)
+            # Générer et stocker le numéro de session
+            request.session['session_number'] = generate_session_number()
             if Issuer.objects.filter(username=username).exists():
                 return redirect('/dashboard-signing')
             else:

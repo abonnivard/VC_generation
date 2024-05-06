@@ -157,3 +157,5 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 LOGIN_URL = 'accounts:login'
 LOGIN_REDIRECT_URL = "/"
 
+SESSION_COOKIE_AGE = 900 #Durée de vie de 15 minutes pour assurer la deconnexion au dela
+

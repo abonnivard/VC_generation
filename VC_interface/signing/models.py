@@ -9,9 +9,12 @@ class UniversityDegree(models.Model):
     degree = models.CharField(max_length=300)
     name = models.CharField(max_length=100)
     created_at = models.DateTimeField(auto_now_add=True)
-    id_card_photo = models.CharField(max_length=100) # A modifier en fonction de ce qu'on veut ? Photo de la carte d'identité ? de la carte de TSP ?.
     uuid = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
     status = models.CharField(max_length=100, default="unsigned")
+    jwt = models.BooleanField(default=False)
+    bss = models.BooleanField(default=False)
+    ld = models.BooleanField(default=False)
+    signedvc = models.TextField(default="")
 
     def __str__(self):
         return f"{self.first_name} {self.name}'s University Degree"

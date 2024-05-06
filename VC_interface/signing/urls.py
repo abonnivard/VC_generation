@@ -16,13 +16,12 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
-from .views import university_degree
+from .views import university_degree, generate_did_web, example_vc_universitydegree
 
 app_name = 'signing'
 
 urlpatterns = [
-
     path('university_degree/', university_degree, name="university_degree"),
-
-
+    path('.well-known/<str:id>/did.json', generate_did_web, name='generate_did_web'),
+    path('universitydegree/example', example_vc_universitydegree, name='example_vc_universitydegree'),
 ]

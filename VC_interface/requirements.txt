@@ -6,4 +6,7 @@ psycopg2-binary==2.9.6
 Pillow==8.4.0
 requests==2.26.0
 cryptography==35.0.0
-web3==5.29.0
+qrcode==7.3
+reverse
+py_ecc
+PyJWT

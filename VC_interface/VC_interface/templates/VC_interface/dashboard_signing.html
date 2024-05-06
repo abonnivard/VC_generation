@@ -36,21 +36,32 @@
                 <li>
                     <div class="key-section">
                         <p>Key name: {{ private_key.name }}</p>
+                        <p>Key Type: {{ private_key.key_type }}</p>
                         <button class="download-key-btn" data-private="{{ private_key.private_key }}" data-public="{{ private_key.public_key }}" data-key-name="{{ private_key.name }}">Download Key</button>
                     </div>
                 </li>
                 {% endfor %}
             </ul>
 
-
             <form method="post" action="{% url 'key_storage:generate_key' %}">
-                {% csrf_token %}
-                <div class="form-group">
-                    <label for="name">Name of the new pair key</label>
-                    <input type="text" class="form-control" id="name" name="name" required>
-                    <button type="submit" class="generate-key-btn">Generate New Key</button>
-                </div>
+    {% csrf_token %}
+    <div class="form-group">
+        <label for="name">Name of the new key pair</label>
+        <input type="text" class="form-control" id="name" name="name" required>
 
+        <label for="keyType">Type of key pair</label>
+        <select class="form-control" id="keyType" name="keyType" required>
+            <option value="bls">BLS</option>
+            <option value="ed25519">Ed25519</option>
+        </select>
+
+        <button type="submit" class="generate-key-btn">Generate New Key</button>
+    </div>
+</form>
+
+
+            <form method="get" action="{% url 'key_storage:add_key' %}">
+                <button class="add-existing-key-btn">Add an Existing Key</button>
             </form>
         </div>
     </div>

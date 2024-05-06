@@ -1,22 +1,6 @@
-"""
-URL configuration for VC_interface project.
-
-The `urlpatterns` list bss_signature URLs to views. For more information please see:
-    https://docs.djangoproject.com/en/4.2/topics/http/urls/
-Examples:
-Function views
-    1. Add an import:  from my_app import views
-    2. Add a URL to urlpatterns:  path('', views.home, name='home')
-Class-based views
-    1. Add an import:  from other_app.views import Home
-    2. Add a URL to urlpatterns:  path('', Home.as_view(), name='home')
-Including another URLconf
-    1. Import the include() function: from django.urls import include, path
-    2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
-"""
 from django.contrib import admin
 from django.urls import path, include
-from .views import dashboard, dashboard_signing, signing_page
+from .views import dashboard, dashboard_signing, signing_page, generate_qr_code, verify_vc_bss, verify_vc_jwt, check_session_number_for_verification, check_session_number_for_signature
 
 app_name = 'VC_interface'
 
@@ -29,6 +13,9 @@ urlpatterns = [
     path('dashboard/', dashboard, name='dashboard'),
     path('dashboard-signing/', dashboard_signing, name='dashboard_signing'),
     path('signing_page/id=<str:id>/', signing_page, name='signing_page'),
-
-
+    path('generate-qr-code/<str:vc_id>', generate_qr_code, name='generate_qr_code'),
+    path('verify-vc-jwt/<str:id>=<str:title>', verify_vc_jwt, name='verify_vc_jwt'),
+    path('verify-vc-bss/<str:id>=<str:title>', verify_vc_bss, name='verify_vc_bss'),
+    path('check-session-number-verification/<str:session_number>', check_session_number_for_verification, name='check_session_number'),
+    path('check-session-number-signature/<str:session_number>', check_session_number_for_signature, name='check_session_number'),
 ]

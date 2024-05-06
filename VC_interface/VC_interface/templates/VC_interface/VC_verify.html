@@ -1,0 +1,30 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vérification du VC</title>
+    <link rel="stylesheet" href="{% static 'VC_interface/css/VC_verify.css' %}">
+
+</head>
+<body>
+    <div class="container">
+        <div class="checkmark">&#10004;</div>
+        <h2>The VC has been successfully verified!</h2>
+        <div class="vc-info">
+            <p><strong>ID:</strong> {{ vc.id }}</p>
+            <p><strong>Type:</strong> University Degree</p>
+            <p><strong>Signature:</strong> {{ vc.signature }}</p>
+            <p><strong>Issuer:</strong> {{ vc.institution }}</p>
+            <p><strong>Date of issue:</strong> {{ vc.created_at}}</p>
+            <p><strong>Subject:</strong> {{ vc.subject }}</p>
+            <ul>
+                <li><strong>Degree:</strong> {{ vc.degree }}</li>
+                <li><strong>University:</strong> {{ vc.institution }}</li>
+                <li><strong>Year of graduation:</strong> {{ vc.year_of_graduation }}</li>
+            </ul>
+        </div>
+    </div>
+</body>
+</html>

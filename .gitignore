@@ -167,3 +167,5 @@ cython_debug/
 terraform*
 tf-plan
 tf.plan
+
+node_modules

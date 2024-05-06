@@ -1,3 +1,4 @@
+<!-- dashboard.html -->
 {% load static %}
 <!DOCTYPE html>
 <html lang="fr">
@@ -17,14 +18,46 @@
                     <tr>
                         <th>VC Name</th>
                         <th>Status</th>
+                        <th>Schema</th>
+                        <th>QR Code</th>
                     </tr>
                 </thead>
                 <tbody>
-                {% for degree in degrees %}
+                {% for degree in degrees_unsigned %}
                     <tr>
                         <td>{{ degree }}</td>
                         <td>{{ degree.status }}</td>
+                        <td></td>
+                        <td></td> <!-- Colonne pour le schéma (à remplir) -->
                     </tr>
+                {% endfor %}
+                {% for degree in degrees_signed %}
+                    <tr>
+                        <td>{{ degree }}</td>
+                        <td>{{ degree.status }}</td>
+                          {% for dico in dico_signed %}
+
+                            {% if dico.uuid == degree.uuid %}
+                        <td>
+                            <form action="{% url 'generate_qr_code' vc_id=dico.uuid %}" method="post">
+                                {% csrf_token %}
+                                <input type="hidden" name="vc_id" value="{{ degree.uuid }}">
+                                <select name="schema">
+                                    <option value="full">VC en entier</option>
+                                    <option value="title">Titre du diplôme</option>
+                                    <option value="year">Année d'obtention du diplôme</option>
+                                    <option value="institution">Nom de l'université</option>
+                                </select>
+                        </td>
+
+                        <td>
+                            <button type="submit">Generate QR Code</button>
+                            </form>
+                        </td> <!-- Affichage du schéma sélectionné -->
+                              {% endif %}
+                          {% endfor %}
+                    </tr>
+
                 {% endfor %}
                 </tbody>
             </table>
