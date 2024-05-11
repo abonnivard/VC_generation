@@ -1,10 +1,25 @@
+/**
+ * Ce fichier définit un routeur Express pour une API Node.js permettant de vérifier des Jetons de Crédential Vérifiable (VC JWT).
+ * Utilise la bibliothèque 'express'.
+ *
+ * Importe également une fonction personnalisée de vérification du VC JWT depuis 'functions.mjs'.
+ */
+
 import express from 'express';
 import verifyInternalVcJwt from './functions.mjs'; // Importez la fonction personnalisée de vérification du VC JWT
 
 // Créer un routeur express
 const router = express.Router();
 
-// Route pour vérifier le VC
+/**
+ * Route permettant de vérifier un Jeton de Crédential Vérifiable (VC).
+ * @route POST /verify-vc
+ * @group Vérification VC
+ * @param {string} vc.body.required - Le Jeton de Crédential Vérifiable (VC) à vérifier.
+ * @returns {object} 200 - Résultat de la vérification du VC.
+ * @returns {boolean} .verified - Booléen indiquant si le VC est vérifié avec succès.
+ * @returns {Error} 500 - Erreur lors de la vérification du VC.
+ */
 router.post('/verify-vc', async (req, res) => {
     console.log(req.body)
     try {

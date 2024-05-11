@@ -9,7 +9,6 @@ urlpatterns = [
     path('', include('accounts.urls')),
     path('', include('signing.urls')),
     path('', include('key_storage.urls')),
-    path('', include('key_informations.urls')),
     path('dashboard/', dashboard, name='dashboard'),
     path('dashboard-signing/', dashboard_signing, name='dashboard_signing'),
     path('signing_page/id=<str:id>/', signing_page, name='signing_page'),

@@ -1,4 +1,7 @@
 
+
+all: setup install migrations start
+
 # Créer l'environnement virtuel
 setup:
 	python3 -m venv env

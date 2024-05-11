@@ -14,6 +14,7 @@ class UniversityDegree(models.Model):
     jwt = models.BooleanField(default=False)
     bss = models.BooleanField(default=False)
     ld = models.BooleanField(default=False)
+    zkp_cl = models.BooleanField(default=False)
     signedvc = models.TextField(default="")
 
     def __str__(self):

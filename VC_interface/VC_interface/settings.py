@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 
 from pathlib import Path
 import os
+from dotenv import load_dotenv
 
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -23,25 +24,22 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 # SECURITY WARNING: keep the secret key used in production secret!
 
-
+load_dotenv()
 
 DEBUG=True
 
 SECRET_KEY='test'
 
 DATABASES = {
-        'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'adrien',
-        'USER': 'adrien',
-        'PASSWORD': '',
-        'HOST': 'localhost',
-        'PORT': '5432',
+    'default': {
+        'ENGINE': os.getenv('DB_ENGINE'),
+        'NAME': os.getenv('DB_NAME'),
+        'USER': os.getenv('DB_USER'),
+        'PASSWORD': os.getenv('DB_PASSWORD'),
+        'HOST': os.getenv('DB_HOST'),
+        'PORT': os.getenv('DB_PORT'),
     }
 }
-
-
-
 
 
 ALLOWED_HOSTS = ["127.0.0.1", "localhost"]
@@ -64,7 +62,6 @@ INSTALLED_APPS = [
     'accounts.apps.AccountsConfig',
     'signing.apps.SigningConfig',
     'key_storage.apps.KeyStorageConfig',
-    'key_informations.apps.KeyInformationsConfig',
 ]
 
 

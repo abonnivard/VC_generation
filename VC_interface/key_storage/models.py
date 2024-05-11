@@ -4,6 +4,10 @@ import uuid
 import requests
 
 class PairKeyStorage(models.Model):
+    """
+    Modèle pour stocker les paires de clés privées et publiques pour les Issuing Authorities.
+    """
+
     uuid = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
     name = models.CharField(max_length=100)
     issuer = models.ForeignKey(Issuer, on_delete=models.CASCADE)
@@ -16,6 +20,11 @@ class PairKeyStorage(models.Model):
 
     @classmethod
     def generate_keys(cls, key_type):
+        """
+        Génère une paire de clés privée et publique.
+        Prend en charge la génération de clés BLS et Ed25519.
+        Retourne la clé privée et publique ou None si la génération échoue.
+        """
         try:
             if key_type == 'bls':
                 # Effectuer une requête HTTP POST vers l'URL pour générer une paire de clés BLS

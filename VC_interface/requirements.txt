@@ -10,3 +10,4 @@ qrcode==7.3
 reverse
 py_ecc
 PyJWT
+python-dotenv

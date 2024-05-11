@@ -1,3 +1,57 @@
+"""
+Ce fichier Python contient des vues Django utilisées pour gérer l'interface utilisateur d'un système de signature de certificats vérifiables (VC).
+
+Fonctions de Vue :
+------------------
+
+1. dashboard(request):
+   - Affiche le tableau de bord de l'utilisateur.
+   - Affiche les diplômes signés et non signés de l'utilisateur.
+   - Rendu de la page VC_interface/dashboard.html.
+
+2. signing_page(request, id):
+   - Gère la page de signature d'un diplôme spécifique.
+   - Prend en charge la signature d'un diplôme en utilisant différents algorithmes de signature (bss, jwt, ld, zkp-cl).
+   - Rendu de la page VC_interface/signing_page.html.
+
+3. dashboard_signing(request):
+   - Affiche le tableau de bord de signature de l'émetteur.
+   - Affiche les diplômes à signer et les clés privées disponibles pour la signature.
+   - Rendu de la page VC_interface/dashboard_signing.html.
+
+4. generate_qr_code(request, vc_id):
+   - Génère un code QR pour vérifier un VC.
+   - Prend en charge la génération d'un code QR contenant un lien de vérification du VC.
+
+5. verify_vc_jwt(request, id, title):
+   - Vérifie un VC signé avec JWT.
+   - Affiche les détails du VC si la vérification est réussie.
+   - Rendu des pages VC_interface/VC_verify.html et VC_interface/VC_notverify.html.
+
+6. verify_vc_bss(request, id, title):
+   - Vérifie un VC signé avec BSS+.
+   - Affiche les détails spécifiques du VC en fonction de l'attribut révélé.
+   - Rendu des pages VC_interface/VC_verify_institution.html, VC_interface/VC_verify_degree.html, VC_interface/VC_verify_year.html, VC_interface/VC_verify_student.html, VC_interface/VC_verify.html et VC_interface/VC_notverify.html.
+
+7. check_session_number_for_verification(request, session_number):
+   - Vérifie si un numéro de session existe pour la vérification.
+   - Retourne une réponse JSON indiquant si le numéro de session existe.
+
+8. check_session_number_for_signature(request, session_number):
+   - Vérifie si un numéro de session existe pour la signature.
+   - Retourne une réponse JSON indiquant si le numéro de session existe et est valide.
+
+Imports Utilisés :
+------------------
+
+- render, redirect, HttpResponse, JsonResponse : Fonctions Django pour générer des réponses HTTP et rendre des pages HTML.
+- login_required : Décorateur Django pour restreindre l'accès aux vues aux utilisateurs authentifiés.
+- UniversityDegree, Issuer, Holder, SessionNumber, PairKeyStorage : Modèles Django utilisés pour accéder aux données de la base de données.
+- requests : Module Python pour effectuer des requêtes HTTP.
+- qrcode : Module Python pour générer des codes QR.
+- json, jwt, time, datetime : Modules Python pour la manipulation de données JSON, la génération de JWT, et la gestion des dates et heures.
+"""
+
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from accounts.models import Issuer, Holder, SessionNumber
@@ -6,7 +60,6 @@ import requests
 from django.http import JsonResponse
 from key_storage.models import PairKeyStorage
 from datetime import datetime
-from django.shortcuts import render
 from django.http import HttpResponse
 import qrcode
 import json
@@ -15,9 +68,13 @@ import time
 import datetime
 from datetime import datetime as dt
 
-
 @login_required
 def dashboard(request):
+    """
+    Affiche le tableau de bord de l'utilisateur.
+    Affiche les diplômes signés et non signés de l'utilisateur.
+    Rendu de la page VC_interface/dashboard.html.
+    """
     user = Holder.objects.get(username=request.user.username)
     degrees_sign = UniversityDegree.objects.all().filter(user_uuid=user.uuid).filter(status="signed")
     degrees_unsigned = UniversityDegree.objects.all().filter(user_uuid=user.uuid).filter(status="unsigned")
@@ -41,6 +98,11 @@ def dashboard(request):
 
 @login_required
 def signing_page(request, id):
+    """
+    Gère la page de signature d'un diplôme spécifique.
+    Prend en charge la signature d'un diplôme en utilisant différents algorithmes de signature (bss, jwt, ld, zkp-cl).
+    Rendu de la page VC_interface/signing_page.html.
+    """
     issuer = Issuer.objects.get(username=request.user.username)
     vc = UniversityDegree.objects.get(uuid=id)
     holder = Holder.objects.get(uuid=vc.user_uuid)
@@ -94,7 +156,7 @@ def signing_page(request, id):
                 "issuer_did": issuer.did
             }
 
-            #Enregistrement de numéro de session pour garantir que la requête provient de l'interface.
+            # Enregistrement de numéro de session pour garantir que la requête provient de l'interface.
             if not SessionNumber.objects.filter(session_number=request.session.get('session_number')).exists():
                 new_session = SessionNumber(user=issuer, session_number=request.session.get('session_number'))
                 new_session.save()
@@ -105,7 +167,7 @@ def signing_page(request, id):
             payload = data
             response = requests.post(api_url, json=payload)
             if response.status_code == 200:
-                # On spécifie que la session a été utilisé pour signature
+                # On spécifie que la session a été utilisée pour signature
                 new_session.used_for_signing = True
                 new_session.save()
                 signed_vc = response.json()
@@ -159,7 +221,7 @@ def signing_page(request, id):
             response = requests.post(api_url, json=data)
             if response.status_code == 200:
 
-                #On spécifie que la session a été utilisé pour signature
+                # On spécifie que la session a été utilisée pour signature
                 new_session.used_for_signing = True
                 new_session.save()
                 signed_vc = response.json()
@@ -218,7 +280,7 @@ def signing_page(request, id):
             response = requests.post(api_url, json=data)
             if response.status_code == 200:
 
-                # On spécifie que la session a été utilisé pour signature
+                # On spécifie que la session a été utilisée pour signature
                 new_session.used_for_signing = True
                 new_session.save()
                 signed_vc = response.json()
@@ -235,6 +297,61 @@ def signing_page(request, id):
                 return JsonResponse({'error': 'Failed to sign VC'}, status=500)
 
 
+        elif method=="zkp-cl":
+
+
+            dataToSign = {
+                "@context": ["http://127.0.0.1:8000/universitydegree/example"],
+                "id": int(vc.id),
+                "type":
+                    ["VerifiableCredential", "UniversityDegreeCredential"],
+                "issuer": public_key_str,
+                "issuanceDate": formatted_date_time,
+                "session_number": request.session.get('session_number'),
+                "subject": vc.first_name + " " + vc.name,
+                "credentialSubject": {
+                    "id": int(vc.id),
+                    "degree": vc.degree,
+                    "university": {
+                        "id": "https://www.telecom-sudparis.eu/",
+                        "name": vc.institution,
+                    },
+                    "year_of_graduation": vc.year_of_graduation + "-01-01T00:00:00Z",
+                }
+            }
+
+            data = {
+                "data_to_sign": dataToSign,
+                "private_key": private_key_str,
+                "public_key": public_key_str,
+            }
+
+            # Si la signature est réussie, on enregistre le numéro de session utilisé au moment de la signature
+            if not SessionNumber.objects.filter(session_number=request.session.get('session_number')).exists():
+                new_session = SessionNumber(user=issuer, session_number=request.session.get('session_number'))
+                new_session.save()
+            else:
+                new_session = SessionNumber.objects.get(session_number=request.session.get('session_number'))
+
+            api_url = 'http://localhost:3000/zkp-cl/sign-vc/'
+            response = requests.post(api_url, json=data)
+            if response.status_code == 200:
+
+                # On spécifie que la session a été utilisée pour signature
+                new_session.used_for_signing = True
+                new_session.save()
+                signed_vc = response.json()
+                vc.status = "signed"
+                vc.signedvc = json.dumps(signed_vc.get('signed_vc'))
+                vc.zkp_cl = True
+                vc.save()
+                return redirect('/dashboard-signing')
+            else:
+                # Si la signature est réussie, on garde l'enregistrement de la session, sinon on le supprime
+                a_supprimer = SessionNumber.objects.get(session_number=request.session.get('session_number'))
+                if not a_supprimer.used_for_signing:
+                    a_supprimer.delete()
+                return JsonResponse({'error': 'Failed to sign VC'}, status=500)
 
     if key == False:
         context = {
@@ -248,11 +365,13 @@ def signing_page(request, id):
         }
     return render(request, "VC_interface/signing_page.html", context)
 
-
-
-
 @login_required
 def dashboard_signing(request):
+    """
+    Affiche le tableau de bord de l'interface de signature de l'Issuing Authority.
+    Affiche les diplômes à signer et les diplômes déjà signés.
+    Rendu de la page VC_interface/dashboard_signing.html.
+    """
     issuer = Issuer.objects.get(username=request.user.username)
     notsigning = UniversityDegree.objects.filter(status="unsigned", institution=issuer.institution)
     signing = UniversityDegree.objects.filter(status="signed", institution=issuer.institution)
@@ -264,23 +383,19 @@ def dashboard_signing(request):
         'private_keys': private_keys,
     }
 
-
     return render(request, "VC_interface/dashboard_signing.html", context)
 
-
-
-# views.py
-
-
-
-
 def generate_qr_code(request, vc_id):
+    """
+    Génère un code QR contenant un lien de vérification du diplôme.
+    Prend en charge la génération du QR code pour les diplômes signés via BSS ou JWT.
+    """
     if request.method == "POST":
         title = request.POST.get('schema')
         print(title)
         vc = UniversityDegree.objects.get(uuid=vc_id)
         if vc.bss:
-        # Générez le lien de vérification du VC
+            # Générez le lien de vérification du VC
             verification_link = "127.0.0.1:8000/verify-vc-bss/" + vc_id + "=" + title
         else:
             verification_link = "127.0.0.1:8000/verify-vc-jwt/" + vc_id + "=" + title
@@ -305,9 +420,10 @@ def generate_qr_code(request, vc_id):
     else:
         return render(request, 'VC_interface/dashboard.html')
 
-
-
 def verify_vc_jwt(request, id, title):
+    """
+    Vérifie un diplôme signé avec JWT.
+    """
     university_degree = UniversityDegree.objects.get(uuid=id)
     vc_jwt = university_degree.signedvc.replace('"', "")
     issuer = Issuer.objects.get(institution=university_degree.institution)
@@ -348,8 +464,10 @@ def verify_vc_jwt(request, id, title):
         print(f"Failed to verify VC: {e}")
         return render(request, 'VC_interface/VC_notverify.html')
 
-
 def verify_vc_bss(request, id, title):
+    """
+    Vérifie un diplôme signé avec BSS.
+    """
     vc = UniversityDegree.objects.get(uuid=id)
     signed_vc = vc.signedvc.replace("'", "\"")
 
@@ -396,33 +514,36 @@ def verify_vc_bss(request, id, title):
                     "created_at": vc.created_at,
                 }
                 return render(request, 'VC_interface/VC_verify_institution.html', context)
-            if case == 1:
+            elif case == 1:
                 context = {
                     "degree": vc.degree,
                     "created_at": vc.created_at,
                 }
                 return render(request, 'VC_interface/VC_verify_degree.html', context)
-            if case == 2:
+            elif case == 2:
                 context = {
-                    "year": vc.year_of_graduation,
+                    "year_of_graduation": vc.year_of_graduation,
                     "created_at": vc.created_at,
                 }
                 return render(request, 'VC_interface/VC_verify_year.html', context)
-            if case == 3:
+            elif case == 3:
                 context = {
+                    "name": vc.first_name + " " + vc.name,
+                    "created_at": vc.created_at,
                 }
-                return render(request, 'VC_interface/VC_verify_student.html', context)
+                return render(request, 'VC_interface/VC_verify_name.html', context)
             else:
                 context = {
-                    'vc': vc,
-                    "vc.signature" : "BSS"
+                    "vc": vc,
                 }
                 return render(request, 'VC_interface/VC_verify.html', context)
+
         else:
-            error = data.get("error", "Unknown error")
-            print(f"Failed to verify VC: {error}")
+            print("Failed to verify VC: ", data.get("message"))
             return render(request, 'VC_interface/VC_notverify.html')
-    return render(request, 'VC_interface/VC_notverify.html')
+    else:
+        print("Failed to verify VC: ", response.status_code)
+        return render(request, 'VC_interface/VC_notverify.html')
 
 
 def check_session_number_for_verification(request, session_number):

@@ -1,27 +1,49 @@
+/**
+ * Fichier pour la vérification de la signature d'un Verifiable Credential (VC) en BBS+.
+ */
+
+
 import express from 'express';
 import { signVc, verifyVcSignature, verifyVcParams } from './function.mjs';
 import axios from 'axios';
 
+// Créer un routeur Express
 const router = express.Router();
 
-router.use(express.json()); // Middleware pour analyser les corps de requête JSON
+// Middleware pour analyser les corps de requête JSON
+router.use(express.json());
 
+/**
+ * Renvoie un message indiquant le module de signature de VC JSON-LD ZKP with BSS+.
+ * @route GET /
+ * @returns {object} 200 - Message indiquant le module de signature de VC JSON-LD ZKP with BSS+.
+ */
 router.get("/", (req, res) => {
     res.status(200).json({ message: "Module de signature de VC JSON-LD ZKP with BSS+" });
 });
 
+/**
+ * Route pour vérifier un Verifiable Credential (VC).
+ * @route POST /verify-vc
+ * @param {object} vc.body.required - Le Verifiable Credential à vérifier.
+ * @param {object} vc.proof - La preuve de signature du VC.
+ * @param {string} vc.issuer - La clé publique de l'émetteur du VC.
+ * @param {string} vc.signature - La signature du VC.
+ * @param {string[]} revealedAttributes.body.required - Attributs révélés lors de la vérification.
+ * @returns {object} 200 - Message indiquant la vérification réussie de la signature du VC.
+ * @returns {object} .message - Message indiquant la vérification réussie de la signature du VC.
+ * @returns {Error} 400 - Échec de la vérification des paramètres du VC.
+ * @returns {Error} 404 - Numéro de session introuvable.
+ * @returns {Error} 500 - Échec de la vérification de la signature du VC ou traitement de la demande.
+ */
 router.post('/verify-vc', async (req, res) => {
     try {
-
-
         const vcPayloadString = req.body.vc;
         const vcPayload = JSON.parse(vcPayloadString);
         const proof = vcPayload.proof;
         const issuerPublicKey = vcPayload.issuer;
         const signature = vcPayload.signature;
         const revealedAttributes = req.body.revealedAttributes;
-
-        console.log(vcPayload)
 
         // Vérifier que chaque paramètre du VC est correct
         if (verifyVcParams(vcPayload)) {
@@ -61,4 +83,6 @@ router.post('/verify-vc', async (req, res) => {
         res.status(500).json({ error: 'Failed to process request' });
     }
 });
+
+// Exporter le routeur
 export default router;

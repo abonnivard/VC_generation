@@ -5,6 +5,9 @@ from django.contrib.auth.decorators import login_required
 
 @login_required
 def generate_key(request):
+    """
+    Vue pour générer une nouvelle paire de clés.
+    """
     if request.method == "POST":
         issuer = Issuer.objects.get(username=request.user.username)
         name = request.POST.get('name')
@@ -26,12 +29,18 @@ def generate_key(request):
 
 @login_required
 def delete_key(request, id):
+    """
+    Vue pour supprimer une paire de clés.
+    """
     key = PairKeyStorage.objects.get(uuid=id)
     key.delete()
     return redirect('/dashboard-signing')
 
 
 def add_key(request):
+    """
+    Vue pour ajouter une paire de clés.
+    """
     if request.method == 'POST':
         name = request.POST.get('name')
         public_key = request.POST.get('public-key')

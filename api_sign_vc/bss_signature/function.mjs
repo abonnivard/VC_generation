@@ -1,6 +1,5 @@
 /**
- * Module JavaScript pour la gestion des Verifiable Credentials (VC).
- * @module vcManagement
+ * Fichier JavaScript pour la gestion des Verifiable Credentials (VC) - signature, verification...
  */
 
 

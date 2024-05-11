@@ -1,6 +1,16 @@
+/**
+ * Ce fichier exporte une fonction de vérification de Jeton de Crédential Vérifiable (VC) JWT interne au site sans utiliser le résolveur DID.
+ * Utilise la bibliothèque 'did-jwt' pour décodage de JWT.
+ */
+
 import { decodeJWT } from 'did-jwt';
 
-// Fonction de vérification de VC JWT interne au site sans utiliser le résolveur
+/**
+ * Fonction de vérification de Jeton de Crédential Vérifiable (VC) JWT interne au site sans utiliser le résolveur DID.
+ * @param {string} signedVc - Jeton de Crédential Vérifiable (VC) signé à vérifier.
+ * @returns {object} - Contenu vérifié du VC JWT.
+ * @throws {Error} - Erreur si la vérification du VC JWT échoue.
+ */
 export async function verifyInternalVcJwt(signedVc) {
     try {
         // Décoder le JWT pour accéder à ses informations
