@@ -16,7 +16,7 @@ app.use(cors({
 }));
 app.use('/bss', bss);
 app.use('/jwt', jwt);
-app.use('/bss_verify', bss_verify);
+app.use('/bbs_verify', bss_verify);
 app.use('/jwt_verify', jwt_verify);
 app.use('/generate_keypair', generate_keypair);
 app.use('/ld', ld);

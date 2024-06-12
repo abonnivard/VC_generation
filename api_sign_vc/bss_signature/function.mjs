@@ -91,16 +91,20 @@ export async function signVc(vcPayload, secretKey, publicKey) {
             secretKey: Uint8Array.from(secretKey)
         };
 
+
+
          const isStudent = isStillStudent(vcPayload['credentialSubject']['year_of_graduation']);
 
+
         const attributes= [
-            Buffer.from(vcPayloadJson, "utf-8"),
-            Buffer.from(vcPayload['credentialSubject']['university']['name'], "utf-8"),
-            Buffer.from(vcPayload['credentialSubject']['degree'], "utf-8"),
-            Buffer.from(vcPayload['credentialSubject']['year_of_graduation'], "utf-8"),
-            Buffer.from(isStudent.toString(), "utf-8"),
+            Uint8Array.from(Buffer.from(vcPayloadJson, "utf-8")),
+            Uint8Array.from(Buffer.from(vcPayload['credentialSubject']['university']['name'], "utf-8")),
+            Uint8Array.from(Buffer.from(vcPayload['credentialSubject']['degree'], "utf-8")),
+            Uint8Array.from(Buffer.from(vcPayload['credentialSubject']['year_of_graduation'], "utf-8")),
+            Uint8Array.from(Buffer.from(isStudent.toString(), "utf-8")),
 
         ]
+
 
         // Effectuer la signature BLS
         const signature = await blsSign({
@@ -113,8 +117,8 @@ export async function signVc(vcPayload, secretKey, publicKey) {
             signature,
             publicKey: keyPair.publicKey,
             messages: attributes,
-            nonce: Buffer.from('nonce'),
-            revealed : [1]
+            nonce: Uint8Array.from(Buffer.from("nonce", "utf8")),
+            revealed : [0]
         });
 
         console.log(proof)
@@ -190,19 +194,20 @@ export async function verifyVcSignature(vcPayload, signature, issuerPublicKey, r
 
 
     const attributes= [
-            Buffer.from(vcPayloadJson, "utf-8"),
-            Buffer.from(vcPayload['credentialSubject']['university']['name'], "utf-8"),
-            Buffer.from(vcPayload['credentialSubject']['degree'], "utf-8"),
-            Buffer.from(vcPayload['credentialSubject']['year_of_graduation'], "utf-8"),
-            Buffer.from(isStudent.toString(), "utf-8"),
+            Uint8Array.from(Buffer.from(vcPayloadJson, "utf-8")),
+            Uint8Array.from(Buffer.from(vcPayload['credentialSubject']['university']['name'], "utf-8")),
+            Uint8Array.from(Buffer.from(vcPayload['credentialSubject']['degree'], "utf-8")),
+            Uint8Array.from(Buffer.from(vcPayload['credentialSubject']['year_of_graduation'], "utf-8")),
+            Uint8Array.from(Buffer.from(isStudent.toString(), "utf-8")),
         ]
 
     // Vérifier la signature BLS
     const isVerified = await blsVerify({
         messages:  attributes,
-        publicKey: Buffer.from(keyPair.publicKey),
-        signature : Buffer.from(keyPair.signature),
+        publicKey: Uint8Array.from(Buffer.from(keyPair.publicKey)),
+        signature : Uint8Array.from(Buffer.from(keyPair.signature)),
     });
+
 
 
     let a, b, numAttributes;
@@ -235,24 +240,24 @@ export async function verifyVcSignature(vcPayload, signature, issuerPublicKey, r
             break;
     }
 
+
     //Create a derivate proof from the signature and the attribute we want to reveal
         const newproof = await blsCreateProof({
             signature: keyPair.signature,
             publicKey: Uint8Array.from(keyPair.publicKey),
             messages: attributes,
-            nonce: Buffer.from('nonce'),
+            nonce: Uint8Array.from(Buffer.from("nonce", "utf8")),
             revealed : [numAttributes]
         });
-
-
 
     //Verify the derivate proof
     const isProofVerified = await blsVerifyProof({
       proof: newproof,
-      publicKey: Buffer.from(keyPair.publicKey),
+      publicKey: Uint8Array.from(Buffer.from(keyPair.publicKey)),
       messages: attributes.slice(a,b),
       nonce: Uint8Array.from(Buffer.from("nonce", "utf8")),
     });
+
 
 
     if (numAttributes === 4){

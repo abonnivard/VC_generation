@@ -1,119 +1,106 @@
-import IndySdk from 'indy-sdk';
-import fs from 'fs';
+import { anoncreds, ledger } from '@hyperledger/anoncreds-nodejs';
+import { IndyVdrAnonCredsRegistry } from '@aries-framework/indy-vdr';
+import { ariesAskar } from '@hyperledger/aries-askar-nodejs';
 
 /**
- * Fonction asynchrone pour émettre un VC avec une signature ZKP CL.
- *
- * @param {number} walletHandle - Identifiant du portefeuille.
- * @param {string} schemaId - ID du schéma utilisé.
- * @param {string} credDefId - ID de la définition de crédit utilisée.
- * @param {string} revRegId - ID du registre de révocation utilisé.
- * @param {object} requestJson - Demande de crédit JSON.
- * @returns {Promise<object>} Objet contenant le VC JSON et la preuve JSON.
+ * Crée un nouveau wallet.
+ * @param {string} walletName - Le nom du wallet.
+ * @param {string} walletKey - La clé de chiffrement du wallet.
+ * @returns {Promise<string>} - Une promesse qui résout avec l'identifiant du wallet créé.
  */
-export async function issueCLSignatureVC(walletHandle, schemaId, credDefId, revRegId, requestJson) {
-    // 1. Création du credential
-    const credentialOffer = await IndySdk.issuerCreateCredentialOffer(walletHandle, credDefId);
-    const credentialRequestJson = requestJson;  // Remplacer par la vraie demande de credential JSON
+export async function createWallet(walletName, walletKey) {
+    await ariesAskar.init();
+    const walletConfig = { id: walletName };
+    const walletCredentials = { key: walletKey };
 
-    const [credentialJson, , ] = await IndySdk.issuerCreateCredential(
-        walletHandle, credentialOffer, credentialRequestJson, {}, null, null
-    );
+    await ariesAskar.createWallet(walletConfig, walletCredentials);
 
-    // 2. Génération de la preuve ZKP CL
-    const proofJson = await IndySdk.proverCreateProof(
-        walletHandle, credentialRequestJson, credentialJson, {}, null
-    );
-
-    return { credentialJson, proofJson };
-}
-
-/**
- * Fonction asynchrone pour vérifier un VC avec une signature ZKP CL.
- *
- * @param {object} proofJson - Preuve JSON à vérifier.
- * @param {object} schemaJson - Schéma JSON utilisé pour la vérification.
- * @param {object} credentialDefJson - Définition de crédit JSON utilisée pour la vérification.
- * @returns {Promise<boolean>} Indique si la vérification de la preuve a réussi ou non.
- */
-export async function verifyCLSignatureVC(proofJson, schemaJson, credentialDefJson) {
-    // 1. Vérification de la preuve ZKP CL
-    const valid = await IndySdk.verifierVerifyProof(
-        proofRequest, proofJson, schemaJson, credentialDefJson, {}, {}, {}
-    );
-
-    return valid;
-}
-
-/**
- * Fonction asynchrone pour initialiser l'environnement Indy.
- * @returns {Promise<*>}
- */
-export async function initIndyEnvironment() {
-    // Ouvrir le pool de nœuds Indy
-    const poolName = 'nom_du_pool_indy';
-    const poolGenesisTxnPath = 'chemin/vers/le/fichier_genesis.txn';
-    await IndySdk.openPoolLedger(poolName, poolGenesisTxnPath);
-
-    // Ouvrir le portefeuille Indy
-    const walletConfig = { id: 'nom_du_portefeuille', storage_type: 'default' };
-    const walletCredentials = { key: 'mot_de_passe_du_portefeuille' };
-    const walletHandle = await IndySdk.openWallet(walletConfig, walletCredentials);
-
-    return walletHandle;
+    return walletName;
 }
 
 
+
 /**
- * Fonction asynchrone pour créer un portefeuille Indy.
- * @returns {Promise<*>}
+ * Crée un nouveau schéma avec les attributs spécifiés et le publie sur le ledger.
+ * @param {string} schemaName - Le nom du schéma.
+ * @param {string} schemaVersion - La version du schéma.
+ * @param {Array<string>} attributes - Liste des attributs du schéma.
+ * @returns {Promise<void>} - Une promesse résolue une fois que le schéma est créé et publié avec succès.
  */
-export async function createIndyWallet() {
-    // Spécifier le nom et le mot de passe du portefeuille
-    const walletName = 'VC_project_wallet';
-    const walletPassword = 'telecom_sudparis_password';
+export async function createSchema(schemaName, schemaVersion, attributes) {
+    // Créer le schéma
+    const schema = await anoncreds.issuer.createSchema(schemaName, schemaVersion, attributes);
 
-    // Créer un fichier de sauvegarde pour le portefeuille
-    const walletConfig = { id: walletName, storage_type: 'default' };
-    const walletCredentials = { key: walletPassword };
-    const walletHandle = await IndySdk.createWallet(walletConfig, walletCredentials);
-
-    // Sauvegarder le handle du portefeuille dans un fichier
-    const walletHandleFilePath = 'fichier_portefeuille_handle.txt';
-    fs.writeFileSync(walletHandleFilePath, walletHandle.toString());
-
-    console.log('Portefeuille Indy créé avec succès.');
-    return walletHandle;
+    // Publier le schéma sur le ledger
+    await ledger.submitSchema(schema, 'issuer_did', 'issuer_wallet_handle');
 }
 
 /**
- * Fonction principale pour démontrer l'émission et la vérification d'un VC avec une signature ZKP CL.
+ * Crée une nouvelle définition de credential pour un schéma spécifié et la publie sur le ledger.
+ * @param {string} schemaId - L'identifiant du schéma pour lequel créer la définition de credential.
+ * @param {string} tag - Le tag pour la définition de credential.
+ * @returns {Promise<void>} - Une promesse résolue une fois que la définition de credential est créée et publiée avec succès.
  */
+export async function createCredentialDefinition(schemaId, tag) {
+    // Créer la définition de credential
+    const credDef = await anoncreds.issuer.createAndStoreCredentialDef('wallet_handle', 'issuer_did', schemaId, tag, 'CL', {
+        support_revocation: false // Indique si la revocation est supportée ou non
+    });
+
+    // Publier la définition de credential sur le ledger
+    await ledger.submitCredentialDefinition(credDef, 'issuer_did', 'issuer_wallet_handle');
+}
+
+/**
+ * Crée et signe un VC avec une signature ZKP CL.
+ * @param {string} schemaId - L'identifiant du schéma utilisé pour le VC.
+ * @param {string} credDefId - L'identifiant de la définition de credential utilisée pour le VC.
+ * @param {string} revRegId - L'identifiant du registre de révocation utilisé pour le VC.
+ * @param {object} credentialValues - Les valeurs des attributs du VC.
+ * @returns {Promise<object>} - Une promesse qui résout avec le VC signé.
+ */
+export async function issueCLSignatureVC(schemaId, credDefId, revRegId, credentialValues) {
+    // Créer le credential
+    const credential = await anoncreds.issuer.createCredential(schemaId, credDefId, credentialValues, revRegId);
+
+    // Signer le credential
+    const signedCredential = await anoncreds.prover.signCredential(credential, 'your_private_key');
+
+    return signedCredential;
+}
+
+/**
+ * Vérifie la signature d'un VC signé avec une signature ZKP CL.
+ * @param {object} signedCredential - Le VC signé à vérifier.
+ * @returns {Promise<boolean>} - Une promesse qui résout avec true si la signature est valide, sinon false.
+ */
+export async function verifyCLSignatureVC(signedCredential) {
+    // Vérifier la signature du credential
+    const isValid = await anoncreds.verifier.verifyCredentialSignature(signedCredential, 'issuer_public_key');
+
+    return isValid;
+}
+
+// Exemple d'utilisation
 async function main() {
-    try {
-        const walletHandle = await initIndyEnvironment();
-        console.log('Environnement Indy initialisé avec succès.');
-        // Vous pouvez maintenant effectuer d'autres opérations Indy avec le handle du portefeuille
-    } catch (error) {
-        console.error("Erreur lors de l'initialisation de l'environnement Indy :", error);
-        try {
-            const walletHandle = await createIndyWallet();
-            console.log('Portefeuille Indy créé avec succès.');
-            // Vous pouvez maintenant effectuer d'autres opérations Indy avec le handle du portefeuille
+    // Définir les paramètres du schéma, de la définition de credential et de la revocation registry
+    const schemaId = 'your_schema_id';
+    const credDefId = 'your_credential_definition_id';
+    const revRegId = 'your_revocation_registry_id';
 
-        } catch (error) {
-            console.error("Erreur lors de la création du portefeuille Indy :", error);
-        }
-    }
-    // Création du VC
-    const { credentialJson, proofJson } = await issueCLSignatureVC(walletHandle, schemaId, credDefId, revRegId, requestJson);
+    // Générer les valeurs des attributs du VC
+    const credentialValues = {
+        "attr1": "value1",
+        "attr2": "value2",
+        // Ajoutez d'autres attributs selon votre schéma
+    };
 
-    // Vérification du VC
-    const isValid = await verifyCLSignatureVC(proofJson, schemaJson, credentialDefJson);
+    // Émettre le VC et signer le credential
+    const signedCredential = await issueCLSignatureVC(schemaId, credDefId, revRegId, credentialValues);
+
+    // Vérifier la signature du VC
+    const isValid = await verifyCLSignatureVC(signedCredential);
     console.log("VC est-il valide ?", isValid);
 }
 
-// Lancer l'application
 main();
-
-

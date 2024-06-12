@@ -11,7 +11,7 @@ Fonctions de Vue :
 
 2. signing_page(request, id):
    - Gère la page de signature d'un diplôme spécifique.
-   - Prend en charge la signature d'un diplôme en utilisant différents algorithmes de signature (bss, jwt, ld, zkp-cl).
+   - Prend en charge la signature d'un diplôme en utilisant différents algorithmes de signature (bbs, jwt, ld, zkp-cl).
    - Rendu de la page VC_interface/signing_page.html.
 
 3. dashboard_signing(request):
@@ -28,8 +28,8 @@ Fonctions de Vue :
    - Affiche les détails du VC si la vérification est réussie.
    - Rendu des pages VC_interface/VC_verify.html et VC_interface/VC_notverify.html.
 
-6. verify_vc_bss(request, id, title):
-   - Vérifie un VC signé avec BSS+.
+6. verify_vc_bbs(request, id, title):
+   - Vérifie un VC signé avec BBS+.
    - Affiche les détails spécifiques du VC en fonction de l'attribut révélé.
    - Rendu des pages VC_interface/VC_verify_institution.html, VC_interface/VC_verify_degree.html, VC_interface/VC_verify_year.html, VC_interface/VC_verify_student.html, VC_interface/VC_verify.html et VC_interface/VC_notverify.html.
 
@@ -100,7 +100,7 @@ def dashboard(request):
 def signing_page(request, id):
     """
     Gère la page de signature d'un diplôme spécifique.
-    Prend en charge la signature d'un diplôme en utilisant différents algorithmes de signature (bss, jwt, ld, zkp-cl).
+    Prend en charge la signature d'un diplôme en utilisant différents algorithmes de signature (bbs, jwt, ld, zkp-cl).
     Rendu de la page VC_interface/signing_page.html.
     """
     issuer = Issuer.objects.get(username=request.user.username)
@@ -127,7 +127,7 @@ def signing_page(request, id):
         university = vc.institution
         degree = vc.degree
 
-        if method == "bss":
+        if method == "bbs":
             data_to_sign = {
                 "@context": ["http://127.0.0.1:8000/universitydegree/example"],
                 "id": int(vc.id),
@@ -173,7 +173,8 @@ def signing_page(request, id):
                 signed_vc = response.json()
 
                 vc.status = "signed"
-                vc.bss = True
+                vc.bbs = True
+                vc.key_uuid = pairkey.uuid
                 vc.signedvc = signed_vc.get('signed_vc')
                 vc.save()
                 return redirect('/dashboard-signing')
@@ -226,6 +227,7 @@ def signing_page(request, id):
                 new_session.save()
                 signed_vc = response.json()
                 vc.status = "signed"
+                vc.key_uuid = pairkey.uuid
                 vc.signedvc = json.dumps(signed_vc.get('signed_vc'))
                 vc.jwt = True
                 vc.save()
@@ -244,7 +246,8 @@ def signing_page(request, id):
             print("ld")
 
             dataToSign = {
-                "@context": ["http://127.0.0.1:8000/universitydegree/example"],
+                "@context": ["https://w3id.org/security/v1",
+                    ],
                 "id": int(vc.id),
                 "type":
                     ["VerifiableCredential", "UniversityDegreeCredential"],
@@ -285,6 +288,8 @@ def signing_page(request, id):
                 new_session.save()
                 signed_vc = response.json()
                 vc.status = "signed"
+                vc.key_uuid = pairkey.uuid
+
                 vc.signedvc = json.dumps(signed_vc.get('signed_vc'))
                 vc.ld = True
                 vc.save()
@@ -388,15 +393,15 @@ def dashboard_signing(request):
 def generate_qr_code(request, vc_id):
     """
     Génère un code QR contenant un lien de vérification du diplôme.
-    Prend en charge la génération du QR code pour les diplômes signés via BSS ou JWT.
+    Prend en charge la génération du QR code pour les diplômes signés via BBS+ ou JWT.
     """
     if request.method == "POST":
         title = request.POST.get('schema')
         print(title)
         vc = UniversityDegree.objects.get(uuid=vc_id)
-        if vc.bss:
+        if vc.bbs:
             # Générez le lien de vérification du VC
-            verification_link = "127.0.0.1:8000/verify-vc-bss/" + vc_id + "=" + title
+            verification_link = "127.0.0.1:8000/verify-vc-bbs/" + vc_id + "=" + title
         else:
             verification_link = "127.0.0.1:8000/verify-vc-jwt/" + vc_id + "=" + title
         print(verification_link)
@@ -427,7 +432,7 @@ def verify_vc_jwt(request, id, title):
     university_degree = UniversityDegree.objects.get(uuid=id)
     vc_jwt = university_degree.signedvc.replace('"', "")
     issuer = Issuer.objects.get(institution=university_degree.institution)
-    secret_key = PairKeyStorage.objects.get(issuer=issuer).private_key
+    secret_key = PairKeyStorage.objects.get(uuid=university_degree.key_uuid).private_key
     url = "http://localhost:3000/jwt_verify/verify-vc"
     payload = {"vc": vc_jwt}
     try:
@@ -464,9 +469,9 @@ def verify_vc_jwt(request, id, title):
         print(f"Failed to verify VC: {e}")
         return render(request, 'VC_interface/VC_notverify.html')
 
-def verify_vc_bss(request, id, title):
+def verify_vc_bbs(request, id, title):
     """
-    Vérifie un diplôme signé avec BSS.
+    Vérifie un diplôme signé avec BBS.
     """
     vc = UniversityDegree.objects.get(uuid=id)
     signed_vc = vc.signedvc.replace("'", "\"")
@@ -502,7 +507,7 @@ def verify_vc_bss(request, id, title):
 
 
     print(payload)
-    url = "http://localhost:3000/bss_verify/verify-vc"
+    url = "http://localhost:3000/bbs_verify/verify-vc"
     response = requests.post(url, json=payload)
     if response.status_code == 200:
         data = response.json()
@@ -531,7 +536,7 @@ def verify_vc_bss(request, id, title):
                     "name": vc.first_name + " " + vc.name,
                     "created_at": vc.created_at,
                 }
-                return render(request, 'VC_interface/VC_verify_name.html', context)
+                return render(request, 'VC_interface/VC_verify_student.html', context)
             else:
                 context = {
                     "vc": vc,

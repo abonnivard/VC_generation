@@ -21,3 +21,11 @@ Change the values of `DB_NAME`, `DB_USER`, and `DB_PASSWORD` to match your Postg
 ```bash
 make
 ```
+
+Alternatively, you can run the following commands:
+
+```bash
+pip install -r requirements.txt
+python manage.py migrate
+python manage.py runserver
+```

@@ -12,10 +12,11 @@ class UniversityDegree(models.Model):
     uuid = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
     status = models.CharField(max_length=100, default="unsigned")
     jwt = models.BooleanField(default=False)
-    bss = models.BooleanField(default=False)
+    bbs = models.BooleanField(default=False)
     ld = models.BooleanField(default=False)
     zkp_cl = models.BooleanField(default=False)
     signedvc = models.TextField(default="")
+    key_uuid = models.TextField(default="")
 
     def __str__(self):
         return f"{self.first_name} {self.name}'s University Degree"

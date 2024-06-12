@@ -77,7 +77,10 @@ def university_degree(request):
 def example_vc_universitydegree(request):
     # Créez un exemple de VC
     example_vc = {
-        "@context": ["http://127.0.0.1:8000/universitydegree/example"],
+        "@context": {
+            "@version": 1.1,
+            "id": "@id",
+        },
         "id": 1,
         "type": ["VerifiableCredential", "UniversityDegreeCredential"],
         "issuer": "https://www.example.com/issuer",

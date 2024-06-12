@@ -13,7 +13,7 @@ class PairKeyStorage(models.Model):
     issuer = models.ForeignKey(Issuer, on_delete=models.CASCADE)
     private_key = models.TextField()
     public_key = models.TextField()
-    key_type = models.CharField(default="bls")
+    key_type = models.CharField(default="bls", max_length=10)
 
     def __str__(self):
         return f"PrivateKey for {self.issuer.username}"
